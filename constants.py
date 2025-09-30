@@ -122,5 +122,9 @@ KEY_MAP: Dict[int, str] = {
     pygame.K_g: 'g',
     pygame.K_n: 'n',
     pygame.K_i: 'i',
+    pygame.K_EQUALS: '+', # Para a tecla = que pode ser + com shift
+    pygame.K_MINUS: '-',
+    pygame.K_SLASH: '÷',
+    pygame.K_8: '×', # Para a tecla 8 que pode ser * com shift
     # Adicionar outras teclas conforme necessário
 }
