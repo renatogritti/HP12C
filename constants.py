@@ -6,7 +6,7 @@ from typing import List, Dict, Tuple, Any, Optional
 
 # Dimensões da janela
 LARGURA: int = 740
-ALTURA: int = 445 # Aumentado para acomodar a pilha
+ALTURA: int = 430 # Aumentado para acomodar a pilha
 
 # Cores (em formato RGB)
 COR_FUNDO: Tuple[int, int, int] = (20, 20, 20)
@@ -27,13 +27,6 @@ MARGEM_CORPO: int = 10
 LARGURA_CORPO: int = LARGURA - 2 * MARGEM_CORPO
 ALTURA_CORPO: int = ALTURA - 2 * MARGEM_CORPO
 
-# Layout da Tela
-MARGEM_TELA: int = 15
-LARGURA_TELA: int = LARGURA_CORPO - 2 * MARGEM_TELA
-ALTURA_TELA: int = 100 # Ampliado para caber a pilha
-POS_X_TELA: int = MARGEM_CORPO + MARGEM_TELA
-POS_Y_TELA: int = MARGEM_CORPO + 70 # Ajustado para dar espaço à pilha
-
 # Layout dos Botões
 # Posições e tamanhos definidos manualmente para maior fidelidade.
 BOTOES: List[Dict[str, Any]] = []
@@ -44,6 +37,13 @@ BX_START: int = 18  # Posição inicial X do primeiro botão (canto sup esq do c
 BY_START: int = 195  # Posição inicial Y do primeiro botão (canto sup esq do corpo) - Ajustado para a pilha e nova ALTURA_TELA
 BSX: int = 8  # Espaçamento entre botões X
 BSY: int = 12  # Espaçamento entre botões Y
+
+# Layout da Tela
+MARGEM_TELA: int = 15
+LARGURA_TELA: int = 676 # Ajustado para alinhar com os botões
+ALTURA_TELA: int = 100 # Reintroduzido com o valor correto
+POS_X_TELA: int = MARGEM_CORPO + BX_START # Alinhado com o início dos botões
+POS_Y_TELA: int = MARGEM_CORPO + 70 # Ajustado para dar espaço à pilha
 
 # Definição dos botões (main, f, g, cor)
 LAYOUT: Dict[Tuple[int, int], Tuple[str, Optional[str], Optional[str], str]] = {
