@@ -5,8 +5,8 @@ import pygame
 from typing import List, Dict, Tuple, Any, Optional
 
 # Dimensões da janela
-LARGURA: int = 430
-ALTURA: int = 510
+LARGURA: int = 740
+ALTURA: int = 350
 
 # Cores (em formato RGB)
 COR_FUNDO: Tuple[int, int, int] = (20, 20, 20)
@@ -51,38 +51,38 @@ LAYOUT: Dict[Tuple[int, int], Tuple[str, Optional[str], Optional[str], str]] = {
     (0, 1): ('i', '12÷', 'INT', 'preto'),
     (0, 2): ('PV', 'CF0', 'NPV', 'preto'),
     (0, 3): ('PMT', 'CFj', 'IRR', 'preto'),
-    (0, 4): ('FV', 'Nj', 'RND', 'preto'),
+    (0, 4): ('7', None, 'YTM', 'preto'),
+    (0, 5): ('8', 'SL', 'x̄', 'preto'),
+    (0, 6): ('9', 'SOYD', 's', 'preto'),
+    (0, 7): ('÷', None, 'DB', 'preto'),
 
-    (1, 0): ('y^x', '√x', 'e^x', 'preto'),
-    (1, 1): ('1/x', '%', 'LN', 'preto'),
-    (1, 2): ('Δ%', 'FRAC', 'INTG', 'preto'),
-    (1, 3): ('R↓', 'x<>y', 'PSE', 'preto'),
-    (1, 4): ('SST', 'BST', 'GTO', 'preto'),
+    (1, 0): ('FV', 'Nj', 'RND', 'preto'),
+    (1, 1): ('Δ%', 'FRAC', 'INTG', 'preto'),
+    (1, 2): ('1/x', '%', 'LN', 'preto'),
+    (1, 3): ('y^x', '√x', 'e^x', 'preto'),
+    (1, 4): ('4', None, None, 'preto'),
+    (1, 5): ('5', None, None, 'preto'),
+    (1, 6): ('6', None, None, 'preto'),
+    (1, 7): ('×', None, None, 'preto'),
 
-    (2, 0): ('ON', None, None, 'preto'),
-    (2, 1): ('STO', 'RCL', 'PREFIX', 'preto'),
-    (2, 2): ('f', None, None, 'laranja'),
-    (2, 3): ('g', None, None, 'azul'),
 
-    (3, 0): ('7', None, 'YTM', 'preto'),
-    (3, 1): ('8', 'SL', 'x̄', 'preto'),
-    (3, 2): ('9', 'SOYD', 's', 'preto'),
-    (3, 3): ('÷', None, 'DB', 'preto'),
+    (2, 0): ('R↓', 'x<>y', 'PSE', 'preto'),
+    (2, 1): ('SST', 'BST', 'GTO', 'preto'),
+    (2, 2): ('EEX', 'ΔDYS', 'R/S', 'preto'),
+    (2, 3): ('CHS', 'DATE', 'PRICE', 'preto'),
+    (2, 4): ('1', None, None, 'preto'),
+    (2, 5): ('2', None, None, 'preto'),
+    (2, 6): ('3', None, None, 'preto'),
+    (2, 7): ('-', None, None, 'preto'),
 
-    (4, 0): ('4', None, None, 'preto'),
-    (4, 1): ('5', None, None, 'preto'),
-    (4, 2): ('6', None, None, 'preto'),
-    (4, 3): ('×', None, None, 'preto'),
-
-    (5, 0): ('1', None, None, 'preto'),
-    (5, 1): ('2', None, None, 'preto'),
-    (5, 2): ('3', None, None, 'preto'),
-    (5, 3): ('-', None, None, 'preto'),
-
-    (6, 0): ('0', None, None, 'preto'),
-    (6, 1): ('.', None, None, 'preto'),
-    (6, 2): ('Σ+', 'CLΣ', 'MEM', 'preto'),
-    (6, 3): ('+', None, None, 'preto'),
+    (3, 0): ('ON', None, None, 'preto'),
+    (3, 1): ('f', None, None, 'laranja'),
+    (3, 2): ('g', None, None, 'azul'),
+    (3, 3): ('STO', 'RCL', 'PREFIX', 'preto'),
+    (3, 4): ('0', None, None, 'preto'),
+    (3, 5): ('.', None, None, 'preto'),
+    (3, 6): ('Σ+', 'CLΣ', 'MEM', 'preto'),
+    (3, 7): ('+', None, None, 'preto'),
 }
 
 # Gerar BOTOES a partir do LAYOUT em grade
@@ -91,12 +91,7 @@ for (row, col), (main, f, g, color) in LAYOUT.items():
     BOTOES.append({'rect': rect, 'main': main, 'f': f, 'g': g, 'color': color})
 
 # Botões especiais que não se encaixam na grade principal
-# EEX
-BOTOES.append({'rect': pygame.Rect(BX_START + 4 * (BW + BSX), BY_START + 2 * (BH + BSY), BW, BH), 'main': 'EEX', 'f': 'ΔDYS', 'g': 'R/S', 'color': 'preto'})
-# CHS
-BOTOES.append({'rect': pygame.Rect(BX_START + 4 * (BW + BSX), BY_START + 3 * (BH + BSY), BW, BH), 'main': 'CHS', 'f': 'DATE', 'g': 'PRICE', 'color': 'preto'})
-# ENTER
-BOTOES.append({'rect': pygame.Rect(BX_START + 4 * (BW + BSX), BY_START + 4 * (BH + BSY), BW, BH*3.3 + BSY), 'main': 'ENTER', 'f': 'INPUT', 'g': 'FIN', 'color': 'preto'})
+BOTOES.append({'rect': pygame.Rect(BX_START + 8 * (BW + BSX), BY_START + 0 * (BH + BSY), BW, BH*4.7 + BSY), 'main': 'ENTER', 'f': 'INPUT', 'g': 'FIN', 'color': 'preto'})
 
 
 # Mapeamento do teclado para ações da calculadora

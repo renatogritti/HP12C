@@ -26,7 +26,7 @@ class UI:
         """
         pygame.init()
         self.screen = pygame.display.set_mode((c.LARGURA, c.ALTURA))
-        pygame.display.set_caption("HP-12C Simulator")
+        pygame.display.set_caption("HP-12C")
         self.font_tela = pygame.font.SysFont('monospace', 36, bold=True)
         self.font_botao_main = pygame.font.SysFont('sans-serif', 16, bold=True)
         self.font_botao_sub = pygame.font.SysFont('sans-serif', 10, bold=True)
