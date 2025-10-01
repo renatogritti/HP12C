@@ -15,32 +15,26 @@ def main() -> None:
     """
     Função principal que executa a aplicação.
     """
-    ui: UI = UI()
-    calc: Calculator = Calculator()
-    
-    rodando: bool = True
+    calculator = Calculator()
+    ui = UI(calculator) # Passa a instância da calculadora para a UI
 
-    while rodando:
-        texto_tela: str = calc.get_display()
-
+    running = True
+    while running:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                rodando = False
-            
-            if event.type == pygame.MOUSEBUTTONDOWN:
-                # event.pos é uma tupla (x, y)
-                botao_clicado: Optional[str] = ui.get_botao_clicado(event.pos)
-                if botao_clicado:
-                    print(f"Botão clicado: {botao_clicado}")
-                    calc.press_key(botao_clicado)
-            
-            if event.type == pygame.KEYDOWN:
-                if event.key in c.KEY_MAP:
-                    acao: str = c.KEY_MAP[event.key]
-                    print(f"Tecla pressionada: {pygame.key.name(event.key)} -> Ação: {acao}")
-                    calc.press_key(acao)
+                running = False
+            elif event.type == pygame.MOUSEBUTTONDOWN:
+                if event.button == 1: # Left click
+                    key = ui.get_botao_clicado(event.pos)
+                    if key:
+                        calculator.press_key(key)
+            elif event.type == pygame.KEYDOWN:
+                key_char = c.KEY_MAP.get(event.key)
+                if key_char:
+                    calculator.press_key(key_char)
 
-        ui.desenha_tudo(texto_tela, calc.f_active, calc.g_active)
+        # Update UI
+        ui.desenha_tudo(calculator.f_active, calculator.g_active) # Não passa texto_tela aqui
 
     pygame.quit()
 

@@ -20,14 +20,16 @@ class UI:
     font_indicador: pygame.font.Font
     botoes_rects: List[Tuple[pygame.Rect, str]]
 
-    def __init__(self) -> None:
+    def __init__(self, calculator) -> None:
         """
         Inicializa o Pygame, a tela e as fontes necessárias para a UI.
         """
+        self.calculator = calculator # Referência à instância da calculadora
         pygame.init()
         self.screen = pygame.display.set_mode((c.LARGURA, c.ALTURA))
         pygame.display.set_caption("HP-12C")
         self.font_tela = pygame.font.SysFont('monospace', 36, bold=True)
+        self.font_stack_small = pygame.font.SysFont('monospace', 20) # Fonte menor para a pilha
         self.font_botao_main = pygame.font.SysFont('sans-serif', 16, bold=True)
         self.font_botao_sub = pygame.font.SysFont('sans-serif', 10, bold=True)
         self.font_indicador = pygame.font.SysFont('monospace', 14, bold=True)
@@ -96,6 +98,36 @@ class UI:
                 g_rect: pygame.Rect = g_surf.get_rect(center=(rect.centerx, g_pos_y))
                 self.screen.blit(g_surf, g_rect)
 
+    def _desenha_pilha(self) -> None:
+        """
+        Desenha os valores da pilha (Y, Z, T) acima do display principal.
+        """
+        # Posições relativas ao display principal
+        # A pilha é desenhada de baixo para cima (Y, Z, T)
+        # O valor 'Y' (stack[1]) será o mais próximo do display principal
+        base_y_pos = c.POS_Y_TELA +55 # Posição Y para a parte inferior do texto 'Y'
+        line_height = 20 # Altura aproximada de uma linha de texto da pilha
+        
+        # Exibe Y, Z, T (índices 1, 2, 3 da pilha)
+        # A ordem de exibição é T, Z, Y (de cima para baixo na tela)
+        # Mas a iteração é feita para posicionar de baixo para cima
+        for i, label_text in enumerate(["Y", "Z", "T"]): # Y é o primeiro a ser posicionado (mais baixo)
+            stack_index = 1 + i # Y=stack[1], Z=stack[2], T=stack[3]
+            stack_value = self.calculator.stack[stack_index]
+            
+            # Formata o valor da pilha
+            if stack_value.is_nan():
+                formatted_value = "Error"
+            else:
+                formatted_value = f"{stack_value:.{self.calculator.display_decimals}f}"
+            
+            # Calcula a posição Y para a linha atual
+            current_y_pos = base_y_pos - (i * line_height)
+
+            text_surf = self.font_stack_small.render(f"{label_text}: {formatted_value}", True, c.COR_TEXTO_TELA)
+            text_rect = text_surf.get_rect(midright=(c.POS_X_TELA + c.LARGURA_TELA - 15, current_y_pos))
+            self.screen.blit(text_surf, text_rect)
+
     def desenha_tela(self, texto: str) -> None:
         """
         Desenha o texto fornecido na tela da calculadora.
@@ -105,7 +137,7 @@ class UI:
                          border_radius=5)
         
         texto_surf: pygame.Surface = self.font_tela.render(texto, True, c.COR_TEXTO_TELA)
-        texto_rect: pygame.Rect = texto_surf.get_rect(midright=(c.POS_X_TELA + c.LARGURA_TELA - 15, c.POS_Y_TELA + c.ALTURA_TELA / 2))
+        texto_rect: pygame.Rect = texto_surf.get_rect(midright=(c.POS_X_TELA + c.LARGURA_TELA - 15, c.POS_Y_TELA +35+ c.ALTURA_TELA / 2))
         self.screen.blit(texto_surf, texto_rect)
 
     def _desenha_indicadores(self, f_active: bool, g_active: bool) -> None:
@@ -121,14 +153,15 @@ class UI:
             g_rect: pygame.Rect = g_surf.get_rect(bottomleft=(c.POS_X_TELA + 25, c.POS_Y_TELA + c.ALTURA_TELA - 5))
             self.screen.blit(g_surf, g_rect)
 
-    def desenha_tudo(self, texto_tela: str, f_active: bool, g_active: bool) -> None:
+    def desenha_tudo(self, f_active: bool, g_active: bool) -> None:
         """
         Chama todos os métodos de desenho para renderizar a calculadora completa.
         """
         self.screen.fill(c.COR_FUNDO)
         self._desenha_corpo()
         self._desenha_botoes()
-        self.desenha_tela(texto_tela)
+        self.desenha_tela(self.calculator.get_display()) # Obtém o texto do display principal da calculadora
+        self._desenha_pilha() # Chama o novo método para desenhar a pilha
         self._desenha_indicadores(f_active, g_active)
         pygame.display.flip()
 
