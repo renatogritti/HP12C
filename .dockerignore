@@ -1,0 +1,10 @@
+.git
+.idea
+__pycache__
+.venv
+*.pyc
+HP12C.desktop
+HP12C.png
+README.md
+LICENSE
+.dockerignore

@@ -1,0 +1,7 @@
+[Desktop Entry]
+Name=HP12C
+Exec=/home/renato/Documents/python/HP12C/.venv/bin/python3.12 /home/renato/Documents/python/HP12C/main.py
+Icon=/home/renato/Documents/python/HP12C/HP12C.png
+Terminal=false
+Type=Application
+Categories=Utility;
