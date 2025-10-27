@@ -67,20 +67,84 @@ class Calculator:
         }
 
         self._reset()
+    def _format_number(self, number: Decimal, decimals: int) -> str:
+        """Formata um número com separadores de milhares e casas decimais."""
+        if number.is_nan():
+            return "Error"
+
+        # Formata o número com as casas decimais corretas
+        formatted_str = f"{number:.{decimals}f}"
+        
+        # Separa a parte inteira da parte decimal
+        if '.' in formatted_str:
+            integer_part, decimal_part = formatted_str.split('.')
+        else:
+            integer_part, decimal_part = formatted_str, None
+
+        # Adiciona separadores de milhares à parte inteira
+        sign = ''
+        if integer_part.startswith('-'):
+            sign = '-'
+            integer_part = integer_part[1:]
+            
+        if len(integer_part) > 3:
+            # Inverte a string para facilitar a inserção dos pontos
+            reversed_integer = integer_part[::-1]
+            # Insere um ponto a cada 3 dígitos
+            with_separators = '.'.join(reversed_integer[i:i+3] for i in range(0, len(reversed_integer), 3))
+            # Desinverte para obter o formato correto
+            integer_part = with_separators[::-1]
+
+        # Remonta o número formatado
+        if decimal_part is not None:
+            return f"{sign}{integer_part},{decimal_part}"
+        else:
+            return f"{sign}{integer_part}"
+
+    def _format_entry_buffer(self) -> str:
+        """Formata o buffer de entrada com separadores de milhares."""
+        if self.entry_buffer == "Error":
+            return self.entry_buffer
+
+        # O buffer interno e a exibição usam vírgula
+        if ',' in self.entry_buffer:
+            integer_part, decimal_part = self.entry_buffer.split(',', 1)
+        else:
+            integer_part, decimal_part = self.entry_buffer, None
+
+        sign = ''
+        if integer_part.startswith('-'):
+            sign = '-'
+            integer_part = integer_part[1:]
+        
+        # Adiciona separador de milhar na parte inteira
+        if len(integer_part) > 3:
+            reversed_integer = integer_part[::-1]
+            with_separators = '.'.join(reversed_integer[i:i+3] for i in range(0, len(reversed_integer), 3))
+            integer_part = with_separators[::-1]
+        
+        # Remonta a string para exibição
+        if decimal_part is not None:
+            return f"{sign}{integer_part},{decimal_part}"
+        
+        # Se o usuário acabou de digitar a vírgula
+        if self.entry_buffer.endswith(','):
+            return f"{sign}{integer_part},"
+
+        return f"{sign}{integer_part}"
+
     def get_display(self) -> str:
         """
         Retorna o valor a ser exibido na tela.
         """
         if self.is_entering:
             if self.is_entering_exponent:
-                # Mostra o expoente com até 2 dígitos, preenchido com zero
-                return f"{self.entry_buffer} {self.exponent_buffer.zfill(2)}"
-            return self.entry_buffer
+                # Formata a mantissa e anexa o expoente
+                formatted_mantissa = self._format_entry_buffer()
+                return f"{formatted_mantissa} {self.exponent_buffer.zfill(2)}"
+            return self._format_entry_buffer()
         
-        if self.stack[0].is_nan():
-            return "Error"
-
-        return f"{self.stack[0]:.{self.display_decimals}f}"
+        return self._format_number(self.stack[0], self.display_decimals)
 
     def press_key(self, key: str) -> None:
         """
@@ -128,7 +192,7 @@ class Calculator:
             '0': self._handle_digit, '1': self._handle_digit, '2': self._handle_digit,
             '3': self._handle_digit, '4': self._handle_digit, '5': self._handle_digit,
             '6': self._handle_digit, '7': self._handle_digit, '8': self._handle_digit,
-            '9': self._handle_digit, '.': self._handle_digit,
+            '9': self._handle_digit, ',': self._handle_digit,
             'ENTER': self._handle_enter,
             '+': self._handle_operator, '-': self._handle_operator,
             '×': self._handle_operator, '÷': self._handle_operator,
@@ -163,7 +227,7 @@ class Calculator:
         method = method_map.get(func_name)
         if method:
             # Passa o nome da função para métodos que tratam múltiplos casos
-            if func_name in ['+', '-', '×', '÷'] or func_name.isdigit() or func_name == '.' or func_name in self.fin_regs:
+            if func_name in ['+', '-', '×', '÷'] or func_name.isdigit() or func_name == ',' or func_name in self.fin_regs:
                 method(func_name)
             else:
                 method()
@@ -215,19 +279,30 @@ class Calculator:
 
     def _finalize_entry(self) -> None:
         if self.is_entering:
-            full_number_str = self.entry_buffer
+            if not self.entry_buffer or self.entry_buffer == '-':
+                self.is_entering = False
+                return
+
+            # Substitui a vírgula do buffer por um ponto para o construtor Decimal
+            entry_str_for_decimal = self.entry_buffer.replace(',', '.')
+
+            full_number_str = entry_str_for_decimal
             if self.is_entering_exponent:
-                # Constrói a string completa com o expoente
                 if self.exponent_buffer:
                     full_number_str += 'e' + self.exponent_buffer
                 else:
-                    full_number_str += 'e0' # Se EEX foi pressionado mas nenhum expoente digitado
+                    full_number_str += 'e0'
 
             try:
+                # Se o buffer terminar com um ponto (após a substituição da vírgula), remove-o
+                if full_number_str.endswith('.'):
+                    full_number_str = full_number_str[:-1]
+                
                 value = Decimal(full_number_str)
                 self._push_stack(value)
-            except: # Lida com entradas inválidas como "1.2.3" ou expoentes malformados
-                self.stack[0] = Decimal('nan') # Sinaliza um erro
+            except Exception as e:
+                print(f"Erro ao finalizar entrada: {e}")
+                self.stack[0] = Decimal('nan')
             
             self.is_entering = False
             self.is_entering_exponent = False
@@ -269,15 +344,19 @@ class Calculator:
     # --- MÉTODOS DE ENTRADA E OPERAÇÕES BÁSICAS ---
     def _handle_digit(self, digit: str) -> None:
         if self.is_entering_exponent:
-            if len(self.exponent_buffer) < 2: # Limita o expoente a 2 dígitos
+            if len(self.exponent_buffer) < 2:  # Limita o expoente a 2 dígitos
                 self.exponent_buffer += digit
             return
 
         if not self.is_entering or self.entry_buffer == "Error":
             self.is_entering = True
-            self.entry_buffer = "0." if digit == '.' else digit
+            # Internamente, o buffer de entrada usa vírgula
+            self.entry_buffer = "0," if digit == ',' else digit
         else:
-            if digit == '.' and '.' in self.entry_buffer: return
+            # Apenas um separador decimal é permitido
+            if digit == ',' and ',' in self.entry_buffer: return
+            
+            # Adiciona o dígito ou a vírgula ao buffer
             self.entry_buffer += digit
 
     def _handle_enter(self) -> None:
@@ -433,24 +512,40 @@ class Calculator:
     def _parse_date_number(self, date_num: Decimal) -> Optional[datetime.date]:
         """Converte um número no formato DD.MMYYYY para um objeto datetime.date."""
         try:
-            date_str: str = str(date_num).replace('.', '')
-            if len(date_str) == 7: # DDMMYYY (e.g., 15072024)
-                day: int = int(date_str[0:2])
-                month: int = int(date_str[2:4])
-                year: int = int(date_str[4:8])
-            elif len(date_str) == 8: # DDMMYYYY
-                day = int(date_str[0:2])
+            # Remove separadores de milhar e converte separador decimal para formato interno
+            date_str = str(date_num).replace('.', '').replace(',', '.')
+            
+            # Se o número for um inteiro, pode não ter parte decimal
+            if '.' in date_str:
+                day_month_year = date_str.split('.')
+                day = int(day_month_year[0])
+                # A lógica para extrair mês e ano precisa ser robusta
+                if len(day_month_year[1]) == 4: # Formato MMYY
+                    month = int(day_month_year[1][:2])
+                    year = int(day_month_year[1][2:])
+                elif len(day_month_year[1]) >= 5: # Formato MMDDDDAAAA
+                    month = int(day_month_year[1][:2])
+                    year = int(day_month_year[1][2:6])
+                else:
+                    raise ValueError("Formato de data inválido")
+            else: # Formato DDMMAAAA
+                date_str = str(int(date_num))
+                day = int(date_str[:2])
                 month = int(date_str[2:4])
-                year = int(date_str[4:8])
-            else:
-                raise ValueError("Formato de data inválido")
+                year = int(date_str[4:])
+
+            # Ajuste para anos de 2 dígitos (ex: 79 -> 1979)
+            if year < 100:
+                year += 1900
+
             return datetime.date(year, month, day)
         except (ValueError, IndexError):
             return None
 
     def _format_date_to_number(self, date_obj: datetime.date) -> Decimal:
-        """Converte um objeto datetime.date para um número no formato DD.MMYYYY."""
+        """Converte um objeto datetime.date para um número no formato DD,MMYYYY."""
         if not date_obj: return Decimal('nan')
+        # O formato para Decimal deve usar ponto
         return Decimal(f"{date_obj.day:02d}.{date_obj.month:02d}{date_obj.year}")
 
     def _handle_delta_days(self) -> None:

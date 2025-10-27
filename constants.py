@@ -80,7 +80,7 @@ LAYOUT: Dict[Tuple[int, int], Tuple[str, Optional[str], Optional[str], str]] = {
     (3, 2): ('g', None, None, 'azul'),
     (3, 3): ('STO', 'RCL', 'PREFIX', 'preto'),
     (3, 4): ('0', None, None, 'preto'),
-    (3, 5): ('.', None, None, 'preto'),
+    (3, 5): (',', None, None, 'preto'),
     (3, 6): ('Σ+', 'CLΣ', 'MEM', 'preto'),
     (3, 7): ('+', None, None, 'preto'),
 }
@@ -106,10 +106,9 @@ KEY_MAP: Dict[int, str] = {
     pygame.K_7: '7', pygame.K_KP7: '7',
     pygame.K_8: '8', pygame.K_KP8: '8',
     pygame.K_9: '9', pygame.K_KP9: '9',
-    pygame.K_PERIOD: '.', pygame.K_KP_PERIOD: '.',
+    pygame.K_PERIOD: ',', pygame.K_KP_PERIOD: ',', pygame.K_COMMA: ',',
     pygame.K_PLUS: '+', pygame.K_KP_PLUS: '+',
     pygame.K_MINUS: '-', pygame.K_KP_MINUS: '-',
-    pygame.K_ASTERISK: '×', pygame.K_KP_MULTIPLY: '×',
     pygame.K_SLASH: '÷', pygame.K_KP_DIVIDE: '÷',
     pygame.K_RETURN: 'ENTER', pygame.K_KP_ENTER: 'ENTER',
     pygame.K_BACKSPACE: 'CLx', # Mapeia backspace para limpar a entrada
@@ -117,9 +116,11 @@ KEY_MAP: Dict[int, str] = {
     pygame.K_g: 'g',
     pygame.K_n: 'n',
     pygame.K_i: 'i',
-    pygame.K_EQUALS: '+', # Para a tecla = que pode ser + com shift
-    pygame.K_MINUS: '-',
-    pygame.K_SLASH: '÷',
-    pygame.K_8: '×', # Para a tecla 8 que pode ser * com shift
-    # Adicionar outras teclas conforme necessário
+}
+
+# Mapeamento de teclas pressionadas com SHIFT
+SHIFT_KEY_MAP: Dict[int, str] = {
+    pygame.K_EQUALS: '+', # Teclado US: Shift + '=' é '+'
+    pygame.K_8: '×', # Teclado US: Shift + '8' é '*', que mapeamos para '×'
+    pygame.K_ASTERISK: '×', # Para garantir que a tecla * funcione em todos os layouts
 }

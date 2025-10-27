@@ -30,7 +30,7 @@ class UI:
         pygame.display.set_caption("HP-12C")
         self.font_tela = pygame.font.SysFont('monospace', 36, bold=True)
         self.font_stack_small = pygame.font.SysFont('monospace', 20) # Fonte menor para a pilha
-        self.font_botao_main = pygame.font.SysFont('sans-serif', 16, bold=True)
+        self.font_botao_main = pygame.font.SysFont('sans-serif', 20, bold=True)
         self.font_botao_sub = pygame.font.SysFont('sans-serif', 10, bold=True)
         self.font_indicador = pygame.font.SysFont('monospace', 14, bold=True)
         self.botoes_rects = [] # Armazenará tuplas (rect, main_text)
@@ -87,7 +87,7 @@ class UI:
             # Desenha texto 'f' (laranja)
             if f_text:
                 f_surf: pygame.Surface = self.font_botao_sub.render(f_text, True, c.COR_TEXTO_BOTAO_LARANJA)
-                f_rect: pygame.Rect = f_surf.get_rect(center=(rect.centerx, rect.top + 10))
+                f_rect: pygame.Rect = f_surf.get_rect(center=(rect.centerx, rect.top + 6))
                 self.screen.blit(f_surf, f_rect)
 
             # Desenha texto 'g' (azul)
@@ -116,10 +116,7 @@ class UI:
             stack_value = self.calculator.stack[stack_index]
             
             # Formata o valor da pilha
-            if stack_value.is_nan():
-                formatted_value = "Error"
-            else:
-                formatted_value = f"{stack_value:.{self.calculator.display_decimals}f}"
+            formatted_value = self.calculator._format_number(stack_value, self.calculator.display_decimals)
             
             # Calcula a posição Y para a linha atual
             current_y_pos = base_y_pos - (i * line_height)

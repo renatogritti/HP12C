@@ -1,20 +1,19 @@
-"""
+'''
 Módulo Principal da Aplicação.
 
 Este é o ponto de entrada do simulador da HP-12C. Ele inicializa a interface do usuário,
 controla o loop principal de eventos e, futuramente, irá instanciar e se comunicar
 com o motor da calculadora.
-"""
+'''
 import pygame
 from ui import UI
 from calculator import Calculator
 import constants as c
-from typing import Optional, Tuple
 
 def main() -> None:
-    """
+    '''
     Função principal que executa a aplicação.
-    """
+    '''
     calculator = Calculator()
     ui = UI(calculator) # Passa a instância da calculadora para a UI
 
@@ -29,7 +28,17 @@ def main() -> None:
                     if key:
                         calculator.press_key(key)
             elif event.type == pygame.KEYDOWN:
-                key_char = c.KEY_MAP.get(event.key)
+                mods = pygame.key.get_mods()
+                key_char = None
+
+                # Verifica se a tecla Shift está pressionada
+                if mods & pygame.KMOD_SHIFT:
+                    key_char = c.SHIFT_KEY_MAP.get(event.key)
+                
+                # Se não encontrou no mapa de Shift, tenta no mapa principal
+                if not key_char:
+                    key_char = c.KEY_MAP.get(event.key)
+
                 if key_char:
                     calculator.press_key(key_char)
 
